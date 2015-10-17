@@ -160,8 +160,8 @@ module.exports = function(grunt) {
         // for changes to the node code
         nodemon: {
             dev: {
+                script: 'server.js',
                 options: {
-                    file: 'server.js',
                     nodeArgs: ['--debug'],
                     watchedFolders: ['controllers', 'app', '.'],
                     env: {
