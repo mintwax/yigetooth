@@ -2,7 +2,7 @@
   "name": "yigetooth",
   "description": "Boilerplate web app using node, express, mongodb, backbone, marionette.  Tooling includes Grunt, Bower, Browserify, etc.",
   "version": "0.0.1",
-  "author": "Morris Lee, based on Jason Krol",
+  "author": "Morris Lee, based on Jason Krol's BENM boilerplate",
   "repository": {
     "type": "git",
     "url": "https://github.com/jkat98/benm.git"
@@ -21,7 +21,6 @@
     "errorhandler": "^1.4.2",
     "express": "~4.13.3",
     "express-handlebars": "~2.0.1",
-    "express-winston": "^0.4.1",
     "handlebars-runtime": "~1.0.12",
     "md5": ">=2.0.0",
     "method-override": "^2.3.5",
