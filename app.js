@@ -37,14 +37,16 @@ app.use(cookieParser());
 app.use('/', express.static(path.join(__dirname, 'public')));
 
 //connect to the db server:
-/*mongoose.connect('mongodb://localhost/MyApp');
+
+var MONGOLAB_URI = process.env.MONGOLAB_URI || 'mongodb://localhost/yigetooth'
+
+mongoose.connect(MONGOLAB_URI);
 mongoose.connection.on('open', function() {
     console.log("Connected to Mongoose...");
 
     // check if the db is empty, if so seed it with some contacts:
     seeder.check();
 });
-*/
 
 /*
  * LOAD routes
