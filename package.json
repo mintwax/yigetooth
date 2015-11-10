@@ -21,6 +21,8 @@
     "errorhandler": "^1.4.2",
     "express": "~4.13.3",
     "express-handlebars": "~2.0.1",
+    "google-auth-library": "^0.9.7",
+    "googleapis": "^2.1.6",
     "handlebars-runtime": "~1.0.12",
     "md5": ">=2.0.0",
     "method-override": "^2.3.5",

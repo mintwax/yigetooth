@@ -1,5 +1,6 @@
 var home = require('../controllers/home'),
-    contacts = require('../controllers/contacts');
+    contacts = require('../controllers/contacts'),
+    timeline = require('../controllers/timeline');
 
 module.exports.initialize = function(app) {
     app.get('/', home.index);
@@ -8,4 +9,6 @@ module.exports.initialize = function(app) {
     app.post('/api/contacts', contacts.add);
     // app.put('/api/contacts', contacts.update);
     app.delete('/api/contacts/:id', contacts.delete);
+
+    app.get('/api/timeline', timeline.index);
 };

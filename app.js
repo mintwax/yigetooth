@@ -1,3 +1,6 @@
+/*jslint node: true */
+'use strict';
+
 var express = require('express'),
     path = require('path'),
     favicon = require('serve-favicon'),
@@ -15,7 +18,7 @@ var express = require('express'),
     app = express();
 
 /*
- * CONFIGURATION
+ * VIEW CONFIGURATION
  */
 app.set('views', path.join(__dirname, 'views'));
 app.engine('handlebars', exphbs({
@@ -23,7 +26,7 @@ app.engine('handlebars', exphbs({
     layoutsDir: path.join(app.get('views'), 'layouts')
 }));
 app.set('view engine', 'handlebars');
-app.set('title', 'The amazing yigetooth!')
+app.set('title', 'The amazing yigetooth!');
 
 /*
  * LOAD middleware
@@ -36,13 +39,14 @@ app.use(methodOverride());
 app.use(cookieParser());
 app.use('/', express.static(path.join(__dirname, 'public')));
 
-//connect to the db server:
-
-var MONGOLAB_URI = process.env.MONGOLAB_URI || 'mongodb://localhost/yigetooth'
+/*
+ * connect to the db server:
+ */
+var MONGOLAB_URI = process.env.MONGOLAB_URI || 'mongodb://localhost/yigetooth';
 
 mongoose.connect(MONGOLAB_URI);
 mongoose.connection.on('open', function() {
-    console.log("Connected to Mongoose...");
+    console.log('Connected to Mongoose...');
 
     // check if the db is empty, if so seed it with some contacts:
     seeder.check();

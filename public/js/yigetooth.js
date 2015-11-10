@@ -15265,7 +15265,11 @@ var myapp = new App();
 myapp.start();
 
 },{"./app":1}],5:[function(require,module,exports){
+/*jslint node: true */
+'use strict';
+
 var Backbone = require('backbone');
+var ContactModel;
 
 module.exports = ContactModel = Backbone.Model.extend({
     idAttribute: '_id',

@@ -1,13 +1,13 @@
 /* jshint -W030 */
-var models = require('../../app/models');
+var Contact = require('../../app/models/Contact').Contact;
 
 describe('Models', function() {
 
     describe('Contact', function() {
-        var schema = models.Contact.schema.paths;
+        var schema = Contact.schema.paths;
 
         it('should exist', function() {
-            expect(models.Contact).to.exist;
+            expect(Contact).to.exist;
         });
 
         it('should have email string field', function() {

@@ -1,10 +1,10 @@
 var mongoose = require('mongoose'),
-    models = require('./models'),
+    Contact = require('./models/Contact'),
     md5 = require('md5');
 
 module.exports = {
     check: function() {
-        models.Contact.find({}, function(err, contacts) {
+        Contact.Contact.find({}, function(err, contacts) {
             if (contacts.length === 0) {
                 console.log('no contacts found, seeding...');
                 var newContact = new models.Contact({
