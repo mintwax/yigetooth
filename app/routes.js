@@ -1,6 +1,6 @@
 var home = require('../controllers/home'),
     contacts = require('../controllers/contacts'),
-    timeline = require('../controllers/timeline');
+    gdfiles = require('../controllers/gdfiles');
 
 module.exports.initialize = function(app) {
     app.get('/', home.index);
@@ -10,5 +10,7 @@ module.exports.initialize = function(app) {
     // app.put('/api/contacts', contacts.update);
     app.delete('/api/contacts/:id', contacts.delete);
 
-    app.get('/api/timeline', timeline.index);
+    app.get('/api/gdfiles/thumbnail/:id/:width/:height', gdfiles.thumbnail);
+    app.get('/api/gdfiles', gdfiles.index);
+
 };

@@ -15155,15 +15155,18 @@ var global=typeof self !== "undefined" ? self : typeof window !== "undefined" ? 
 },{}]},{},["8q+xhE","ouxpbO","povzZJ","XMkMMV"])
 ;
 ;(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+
 var Marionette = require('backbone.marionette'),
     Controller = require('./controller'),
     Router = require('./router'),
-    ContactModel = require('./models/contact'),
+//    ContactModel = require('./models/contact'),
+    GDFilesCollection = require('./collections/gdfiles'),
     ContactsCollection = require('./collections/contacts');
 
 module.exports = App = function App() {};
 
-App.prototype.start = function(){
+App.prototype.start = function() {
+
     App.core = new Marionette.Application();
 
     App.core.on("initialize:before", function (options) {
@@ -15180,9 +15183,18 @@ App.prototype.start = function(){
                 App.core.vent.trigger('app:start');
             }
         });
+
+        // load up some initial data:
+        var gdfiles = new GDFilesCollection();
+        gdfiles.fetch({
+            success: function() {
+                App.data.gdfiles = gdfiles;
+                App.core.vent.trigger('app:start');
+            }
+        });
     });
 
-    App.core.vent.bind('app:start', function(options){
+    App.core.vent.bind('app:start', function(){
         App.core.vent.trigger('app:log', 'App: Starting');
         if (Backbone.history) {
             App.controller = new Controller();
@@ -15202,7 +15214,8 @@ App.prototype.start = function(){
     App.core.start();
 };
 
-},{"./collections/contacts":2,"./controller":3,"./models/contact":5,"./router":6}],2:[function(require,module,exports){
+
+},{"./collections/contacts":2,"./collections/gdfiles":3,"./controller":4,"./router":8}],2:[function(require,module,exports){
 var Backbone = require('backbone'),
     ContactModel = require('../models/contact');
 
@@ -15211,21 +15224,49 @@ module.exports = ContactsCollection = Backbone.Collection.extend({
     url: '/api/contacts'
 });
 
-},{"../models/contact":5}],3:[function(require,module,exports){
+},{"../models/contact":6}],3:[function(require,module,exports){
+var Backbone = require('backbone'),
+    GDFileModel = require('../models/gdfile');
+
+module.exports = GDFilesCollection = Backbone.Collection.extend({
+    model:  GDFileModel,
+    url: '/api/gdfiles'
+});
+
+},{"../models/gdfile":7}],4:[function(require,module,exports){
 var Marionette = require('backbone.marionette'),
     ContactsView = require('./views/contacts'),
     ContactDetailsView = require('./views/contact_details'),
-    AddContactView = require('./views/add');
+    AddContactView = require('./views/add'),
+    GDFilesView = require('./views/gdfiles_list'),
+    TimelineCanvasView = require('./views/timeline_canvas');
 
-module.exports = Controller = Marionette.Controller.extend({
+
+var Controller = Marionette.Controller.extend({
     initialize: function() {
         App.core.vent.trigger('app:log', 'Controller: Initializing');
         window.App.views.contactsView = new ContactsView({ collection: window.App.data.contacts });
+        window.App.views.gdfilesView = new GDFilesView( { collection: window.App.data.gdfiles });
+        //window.App.views.timelineCanvasView = new TimelineCanvasView( { collection: window.App.data.gdfiles });
     },
 
-    home: function() {
+/*    home: function() {
         App.core.vent.trigger('app:log', 'Controller: "Home" route hit.');
         var view = window.App.views.contactsView;
+        this.renderView(view);
+        window.App.router.navigate('#');
+    },*/
+
+    timeline: function() {
+        App.core.vent.trigger('app:log', 'Controller: "timeline" route hit.');
+        var view = window.App.views.timelineCanvasView;
+        this.renderView(view);
+        window.App.router.navigate('#');
+    },
+
+    list: function() {
+        App.core.vent.trigger('app:log', 'Controller: "list" route hit.');
+        var view = window.App.views.gdfilesView;
         this.renderView(view);
         window.App.router.navigate('#');
     },
@@ -15259,12 +15300,13 @@ module.exports = Controller = Marionette.Controller.extend({
     }
 });
 
-},{"./views/add":7,"./views/contact_details":8,"./views/contacts":9}],4:[function(require,module,exports){
+module.exports = Controller;
+},{"./views/add":9,"./views/contact_details":10,"./views/contacts":11,"./views/gdfiles_list":12,"./views/timeline_canvas":13}],5:[function(require,module,exports){
 var App = require('./app');
 var myapp = new App();
 myapp.start();
 
-},{"./app":1}],5:[function(require,module,exports){
+},{"./app":1}],6:[function(require,module,exports){
 /*jslint node: true */
 'use strict';
 
@@ -15276,18 +15318,31 @@ module.exports = ContactModel = Backbone.Model.extend({
     urlRoot: 'api/contacts'
 });
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
+/*jslint node: true */
+'use strict';
+
+var Backbone = require('backbone');
+var GDFileModel;
+
+module.exports = GDFileModel = Backbone.Model.extend({
+    idAttribute: '_id',
+    urlRoot: 'api/gdfiles'
+});
+
+},{}],8:[function(require,module,exports){
 var Marionette = require('backbone.marionette');
 
 module.exports = Router = Marionette.AppRouter.extend({
     appRoutes: {
-        ''  : 'home',
+        ''  : 'timeline',
+        'list' : 'list',
         'details/:id' : 'details',
         'add' : 'add'
     }
 });
 
-},{}],7:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 var Marionette = require('backbone.marionette');
 
 module.exports = AddView = Marionette.ItemView.extend({
@@ -15313,7 +15368,7 @@ module.exports = AddView = Marionette.ItemView.extend({
     }
 });
 
-},{"../../templates/add.hbs":10}],8:[function(require,module,exports){
+},{"../../templates/add.hbs":14}],10:[function(require,module,exports){
 var Marionette = require('backbone.marionette');
 
 module.exports = ContactDetailsView = Marionette.ItemView.extend({
@@ -15339,7 +15394,7 @@ module.exports = ContactDetailsView = Marionette.ItemView.extend({
     }
 });
 
-},{"../../templates/contact_details.hbs":11}],9:[function(require,module,exports){
+},{"../../templates/contact_details.hbs":15}],11:[function(require,module,exports){
 var Marionette = require('backbone.marionette');
 
 var itemView = Marionette.ItemView.extend({
@@ -15364,7 +15419,36 @@ module.exports = CollectionView = Marionette.CollectionView.extend({
     itemView: itemView
 });
 
-},{"../../templates/contact_small.hbs":12}],10:[function(require,module,exports){
+},{"../../templates/contact_small.hbs":16}],12:[function(require,module,exports){
+
+
+var Marionette = require('backbone.marionette');
+
+var itemView = Marionette.ItemView.extend({
+    template: require('../../templates/gdfiles.hbs'),
+    initialize: function() {
+        //this.listenTo(this.model, 'change', this.render);
+    },
+    events: {
+        'click': 'showDetails'
+    },
+
+    showDetails: function() {
+        window.App.core.vent.trigger('app:log', 'Timeline Canvas View: showDetails hit.');
+        // window.App.controller.details(this.model.id);
+    }
+});
+
+module.exports = CollectionView = Marionette.CollectionView.extend({
+    initialize: function() {
+        this.listenTo(this.collection, 'change', this.render);
+    },
+    itemView: itemView
+});
+
+},{"../../templates/gdfiles.hbs":17}],13:[function(require,module,exports){
+
+},{}],14:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var Handlebars = require('hbsfy/runtime');
 module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -15376,7 +15460,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return "<div class=\"add_contact\">\n    <label for=\"name_first\">First Name:</label> <input type=\"text\" id=\"name_first\" /><br/>\n    <label for=\"name_last\">Last Name:</label> <input type=\"text\" id=\"name_last\" /><br/>\n    <label for=\"email\">Email:</label> <input type=\"text\" id=\"email\" /><br/>\n    <label for=\"phone\">Phone:</label> <input type=\"text\" id=\"phone\" /><br/>\n    <br/>\n    <a href=\"#\" class=\"save-button\">Save Contact</a> | <a href=\"#\"><< Back</a>\n</div>\n";
   });
 
-},{"hbsfy/runtime":16}],11:[function(require,module,exports){
+},{"hbsfy/runtime":21}],15:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var Handlebars = require('hbsfy/runtime');
 module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -15405,7 +15489,7 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-},{"hbsfy/runtime":16}],12:[function(require,module,exports){
+},{"hbsfy/runtime":21}],16:[function(require,module,exports){
 // hbsfy compiled Handlebars template
 var Handlebars = require('hbsfy/runtime');
 module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
@@ -15430,7 +15514,52 @@ helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
   return buffer;
   });
 
-},{"hbsfy/runtime":16}],13:[function(require,module,exports){
+},{"hbsfy/runtime":21}],17:[function(require,module,exports){
+// hbsfy compiled Handlebars template
+var Handlebars = require('hbsfy/runtime');
+module.exports = Handlebars.template(function (Handlebars,depth0,helpers,partials,data) {
+  this.compilerInfo = [4,'>= 1.0.0'];
+helpers = this.merge(helpers, Handlebars.helpers); data = data || {};
+  var buffer = "", stack1, functionType="function", escapeExpression=this.escapeExpression;
+
+
+  buffer += "<div class=\"photo\">\n\n  <img src=\"";
+  if (stack1 = helpers.iconLink) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.iconLink; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "\">\n  <h3>";
+  if (stack1 = helpers.title) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.title; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "</h3>\n  ";
+  if (stack1 = helpers.mimeType) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.mimeType; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "\n  ";
+  if (stack1 = helpers.id) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.id; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "<br>\n  ";
+  if (stack1 = helpers.createdDate) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.createdDate; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "<br>\n  ";
+  if (stack1 = helpers.modifiedDate) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.modifiedDate; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "<br>\n  <img src=";
+  if (stack1 = helpers.thumbnailLink) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.thumbnailLink; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + " title=\"";
+  if (stack1 = helpers.metadata) { stack1 = stack1.call(depth0, {hash:{},data:data}); }
+  else { stack1 = depth0.metadata; stack1 = typeof stack1 === functionType ? stack1.apply(depth0) : stack1; }
+  buffer += escapeExpression(stack1)
+    + "\">\n\n</div>";
+  return buffer;
+  });
+
+},{"hbsfy/runtime":21}],18:[function(require,module,exports){
 /*jshint eqnull: true */
 
 module.exports.create = function() {
@@ -15598,7 +15727,7 @@ Handlebars.registerHelper('log', function(context, options) {
 return Handlebars;
 };
 
-},{}],14:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 exports.attach = function(Handlebars) {
 
 // BEGIN(BROWSER)
@@ -15706,7 +15835,7 @@ return Handlebars;
 
 };
 
-},{}],15:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 exports.attach = function(Handlebars) {
 
 var toString = Object.prototype.toString;
@@ -15791,7 +15920,7 @@ Handlebars.Utils = {
 return Handlebars;
 };
 
-},{}],16:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 var hbsBase = require("handlebars/lib/handlebars/base");
 var hbsUtils = require("handlebars/lib/handlebars/utils");
 var hbsRuntime = require("handlebars/lib/handlebars/runtime");
@@ -15802,5 +15931,5 @@ hbsRuntime.attach(Handlebars);
 
 module.exports = Handlebars;
 
-},{"handlebars/lib/handlebars/base":13,"handlebars/lib/handlebars/runtime":14,"handlebars/lib/handlebars/utils":15}]},{},[4])
+},{"handlebars/lib/handlebars/base":18,"handlebars/lib/handlebars/runtime":19,"handlebars/lib/handlebars/utils":20}]},{},[5])
 ;

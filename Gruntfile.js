@@ -226,7 +226,8 @@ module.exports = function(grunt) {
         },
 
         jshint: {
-            all: ['Gruntfile.js', 'client/src/**/*.js', 'client/spec/**/*.js'],
+            all: ['Gruntfile.js', 'client/src/**/*.js', 'client/spec/**/*.js',
+                  'controllers/*.js', 'app/auth/*.js', 'app/models/*.js', 'app/*.js'],
             dev: ['client/src/**/*.js'],
             test: ['client/spec/**/*.js']
         }

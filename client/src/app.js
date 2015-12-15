@@ -1,12 +1,15 @@
+
 var Marionette = require('backbone.marionette'),
     Controller = require('./controller'),
     Router = require('./router'),
-    ContactModel = require('./models/contact'),
+//    ContactModel = require('./models/contact'),
+    GDFilesCollection = require('./collections/gdfiles'),
     ContactsCollection = require('./collections/contacts');
 
 module.exports = App = function App() {};
 
-App.prototype.start = function(){
+App.prototype.start = function() {
+
     App.core = new Marionette.Application();
 
     App.core.on("initialize:before", function (options) {
@@ -23,9 +26,18 @@ App.prototype.start = function(){
                 App.core.vent.trigger('app:start');
             }
         });
+
+        // load up some initial data:
+        var gdfiles = new GDFilesCollection();
+        gdfiles.fetch({
+            success: function() {
+                App.data.gdfiles = gdfiles;
+                App.core.vent.trigger('app:start');
+            }
+        });
     });
 
-    App.core.vent.bind('app:start', function(options){
+    App.core.vent.bind('app:start', function(){
         App.core.vent.trigger('app:log', 'App: Starting');
         if (Backbone.history) {
             App.controller = new Controller();
@@ -44,3 +56,4 @@ App.prototype.start = function(){
 
     App.core.start();
 };
+
